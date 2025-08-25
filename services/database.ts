@@ -10,6 +10,8 @@ export interface Book {
   coverMedium?: string;
   coverLarge?: string;
   dateAdded?: string;
+  isRead?: boolean;
+  comment?: string;
 }
 
 export interface Cover {
@@ -89,6 +91,42 @@ class DatabaseService {
   async getRecentBooks(limit: number = 10): Promise<Book[]> {
     const allBooks = await this.getAllBooks();
     return allBooks.slice(0, limit);
+  }
+
+  async updateBookStatus(isbn: string, isRead: boolean): Promise<void> {
+    if (!this.initialized) await this.initialize();
+    
+    const book = await this.getBookByIsbn(isbn);
+    if (book) {
+      book.isRead = isRead;
+      await AsyncStorage.setItem(`book_${isbn}`, JSON.stringify(book));
+      
+      // Update books list
+      const existingBooks = await this.getAllBooksFromStorage();
+      const bookIndex = existingBooks.findIndex(b => b.isbn === isbn);
+      if (bookIndex !== -1) {
+        existingBooks[bookIndex] = book;
+        await AsyncStorage.setItem('books_list', JSON.stringify(existingBooks));
+      }
+    }
+  }
+
+  async updateBookComment(isbn: string, comment: string): Promise<void> {
+    if (!this.initialized) await this.initialize();
+    
+    const book = await this.getBookByIsbn(isbn);
+    if (book) {
+      book.comment = comment;
+      await AsyncStorage.setItem(`book_${isbn}`, JSON.stringify(book));
+      
+      // Update books list
+      const existingBooks = await this.getAllBooksFromStorage();
+      const bookIndex = existingBooks.findIndex(b => b.isbn === isbn);
+      if (bookIndex !== -1) {
+        existingBooks[bookIndex] = book;
+        await AsyncStorage.setItem('books_list', JSON.stringify(existingBooks));
+      }
+    }
   }
 }
 

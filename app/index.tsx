@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, ScrollView, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { databaseService, Book } from '../services/database';
 
 export default function Index() {
@@ -21,8 +23,16 @@ export default function Index() {
     }
   };
 
+
+  const handleBookPress = (book: Book) => {
+    router.push(`/book/${book.isbn}`);
+  };
+
   const renderBookItem = ({ item }: { item: Book }) => (
-    <TouchableOpacity style={styles.bookCard}>
+    <TouchableOpacity 
+      style={styles.bookCard}
+      onPress={() => handleBookPress(item)}
+    >
       <View style={styles.bookImageContainer}>
         {item.coverMedium ? (
           <Image source={{ uri: item.coverMedium }} style={styles.bookImage} />
@@ -34,10 +44,22 @@ export default function Index() {
       </View>
       <View style={styles.bookInfo}>
         <Text style={styles.bookTitle} numberOfLines={2}>{item.title}</Text>
-        {item.authors && (
+        {item.authors ? (
           <Text style={styles.bookAuthor} numberOfLines={1}>{item.authors}</Text>
-        )}
+        ) : null}
         <Text style={styles.bookIsbn}>ISBN: {item.isbn}</Text>
+        {item.isRead ? (
+          <View style={styles.readBadge}>
+            <Ionicons name="checkmark-circle" size={12} color="#34C759" />
+            <Text style={styles.readBadgeText}>Read</Text>
+          </View>
+        ) : null}
+        {item.comment ? (
+          <View style={styles.commentBadge}>
+            <Ionicons name="chatbubble-outline" size={10} color="#007AFF" />
+            <Text style={styles.commentBadgeText}>Notes</Text>
+          </View>
+        ) : null}
       </View>
     </TouchableOpacity>
   );
@@ -74,7 +96,7 @@ export default function Index() {
         <Text style={styles.sectionTitle}>Library Stats</Text>
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{recentBooks.length}</Text>
+            <Text style={styles.statNumber}>{`${recentBooks.length}`}</Text>
             <Text style={styles.statLabel}>Total Books</Text>
           </View>
         </View>
@@ -201,5 +223,27 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 14,
     color: '#999',
+  },
+  readBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  readBadgeText: {
+    fontSize: 10,
+    color: '#34C759',
+    marginLeft: 3,
+    fontWeight: '500',
+  },
+  commentBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 1,
+  },
+  commentBadgeText: {
+    fontSize: 10,
+    color: '#007AFF',
+    marginLeft: 3,
+    fontWeight: '500',
   },
 });

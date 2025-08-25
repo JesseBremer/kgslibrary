@@ -214,24 +214,24 @@ export default function AddBooks() {
           
           <View style={styles.bookInfo}>
             <Text style={styles.bookTitle}>{bookData.title}</Text>
-            {bookData.authors && bookData.authors.length > 0 && (
+            {bookData.authors && bookData.authors.length > 0 ? (
               <Text style={styles.bookAuthor}>by {bookData.authors.join(', ')}</Text>
-            )}
+            ) : null}
             <Text style={styles.bookIsbn}>ISBN: {bookData.isbn}</Text>
-            {bookData.pageCount && (
-              <Text style={styles.bookPages}>{bookData.pageCount} pages</Text>
-            )}
+            {bookData.pageCount ? (
+              <Text style={styles.bookPages}>{`${bookData.pageCount} pages`}</Text>
+            ) : null}
           </View>
         </View>
 
-        {bookData.description && (
+        {bookData.description ? (
           <View style={styles.descriptionContainer}>
             <Text style={styles.descriptionTitle}>Description</Text>
             <Text style={styles.description} numberOfLines={6}>
               {bookData.description}
             </Text>
           </View>
-        )}
+        ) : null}
 
         <View style={styles.confirmationButtons}>
           <TouchableOpacity

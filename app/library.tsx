@@ -11,9 +11,10 @@ import {
   RefreshControl
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { databaseService, Book } from '../services/database';
 
-export default function Browse() {
+export default function Library() {
   const [books, setBooks] = useState<Book[]>([]);
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,33 +87,55 @@ export default function Browse() {
     }
   };
 
+
+  const handleBookPress = (book: Book) => {
+    router.push(`/book/${book.isbn}`);
+  };
+
   const renderBookItem = ({ item }: { item: Book }) => (
-    <TouchableOpacity style={styles.bookItem}>
-      <View style={styles.bookImageContainer}>
-        {item.coverMedium ? (
-          <Image source={{ uri: item.coverMedium }} style={styles.bookImage} />
-        ) : (
-          <View style={styles.placeholderImage}>
-            <Ionicons name="book-outline" size={40} color="#666" />
-          </View>
-        )}
-      </View>
-      
-      <View style={styles.bookDetails}>
-        <Text style={styles.bookTitle} numberOfLines={2}>{item.title}</Text>
-        {item.authors && (
-          <Text style={styles.bookAuthor} numberOfLines={1}>{item.authors}</Text>
-        )}
-        <Text style={styles.bookIsbn}>ISBN: {item.isbn}</Text>
-        {item.pageCount && (
-          <Text style={styles.bookPages}>{item.pageCount} pages</Text>
-        )}
-        {item.dateAdded && (
-          <Text style={styles.dateAdded}>
-            Added: {new Date(item.dateAdded).toLocaleDateString()}
-          </Text>
-        )}
-      </View>
+    <View style={styles.bookItem}>
+      <TouchableOpacity 
+        style={styles.bookContent}
+        onPress={() => handleBookPress(item)}
+      >
+        <View style={styles.bookImageContainer}>
+          {item.coverMedium ? (
+            <Image source={{ uri: item.coverMedium }} style={styles.bookImage} />
+          ) : (
+            <View style={styles.placeholderImage}>
+              <Ionicons name="book-outline" size={40} color="#666" />
+            </View>
+          )}
+        </View>
+        
+        <View style={styles.bookDetails}>
+          <Text style={styles.bookTitle} numberOfLines={2}>{item.title}</Text>
+          {item.authors ? (
+            <Text style={styles.bookAuthor} numberOfLines={1}>{item.authors}</Text>
+          ) : null}
+          <Text style={styles.bookIsbn}>ISBN: {item.isbn}</Text>
+          {item.pageCount ? (
+            <Text style={styles.bookPages}>{`${item.pageCount} pages`}</Text>
+          ) : null}
+          {item.dateAdded ? (
+            <Text style={styles.dateAdded}>
+              Added: {new Date(item.dateAdded).toLocaleDateString()}
+            </Text>
+          ) : null}
+          {item.isRead ? (
+            <View style={styles.readBadge}>
+              <Ionicons name="checkmark-circle" size={14} color="#34C759" />
+              <Text style={styles.readBadgeText}>Read</Text>
+            </View>
+          ) : null}
+          {item.comment ? (
+            <View style={styles.commentBadge}>
+              <Ionicons name="chatbubble-outline" size={12} color="#007AFF" />
+              <Text style={styles.commentBadgeText}>Has notes</Text>
+            </View>
+          ) : null}
+        </View>
+      </TouchableOpacity>
       
       <TouchableOpacity 
         style={styles.deleteButton}
@@ -120,7 +143,7 @@ export default function Browse() {
       >
         <Ionicons name="trash-outline" size={20} color="#ff3b30" />
       </TouchableOpacity>
-    </TouchableOpacity>
+    </View>
   );
 
   const renderEmptyState = () => (
@@ -156,8 +179,7 @@ export default function Browse() {
 
       <View style={styles.resultsHeader}>
         <Text style={styles.resultsCount}>
-          {filteredBooks.length} book{filteredBooks.length !== 1 ? 's' : ''}
-          {searchQuery ? ' found' : ' in library'}
+          {`${filteredBooks.length} book${filteredBooks.length !== 1 ? 's' : ''}${searchQuery ? ' found' : ' in library'}`}
         </Text>
       </View>
 
@@ -219,11 +241,16 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   bookItem: {
-    flexDirection: 'row',
     backgroundColor: '#1c1c1e',
     borderRadius: 12,
-    padding: 12,
     marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  bookContent: {
+    flexDirection: 'row',
+    flex: 1,
+    padding: 12,
     alignItems: 'flex-start',
   },
   bookImageContainer: {
@@ -275,8 +302,9 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   deleteButton: {
-    padding: 8,
+    padding: 12,
     alignSelf: 'flex-start',
+    justifyContent: 'center',
   },
   emptyState: {
     flex: 1,
@@ -296,5 +324,27 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     paddingHorizontal: 40,
+  },
+  readBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  readBadgeText: {
+    fontSize: 11,
+    color: '#34C759',
+    marginLeft: 4,
+    fontWeight: '500',
+  },
+  commentBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  commentBadgeText: {
+    fontSize: 11,
+    color: '#007AFF',
+    marginLeft: 4,
+    fontWeight: '500',
   },
 });

@@ -39,9 +39,9 @@ export default function RootLayout() {
         }}
       />
       <Tabs.Screen
-        name="browse"
+        name="library"
         options={{
-          title: 'Browse',
+          title: 'Library',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="library" size={size} color={color} />
           ),
@@ -54,6 +54,12 @@ export default function RootLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="add-circle" size={size} color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="book"
+        options={{
+          href: null, // This removes it from the tab bar
         }}
       />
     </Tabs>
