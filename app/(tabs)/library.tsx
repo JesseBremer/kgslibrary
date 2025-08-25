@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Text, 
   View, 
@@ -11,8 +11,9 @@ import {
   RefreshControl
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { databaseService, Book } from '../../services/database';
+import { eventEmitter } from '../../services/eventEmitter';
 
 export default function Library() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -23,6 +24,33 @@ export default function Library() {
 
   useEffect(() => {
     loadBooks();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadBooks();
+    }, [])
+  );
+
+  // Listen for book changes
+  useEffect(() => {
+    const unsubscribeAdded = eventEmitter.on('bookAdded', () => {
+      loadBooks();
+    });
+    
+    const unsubscribeDeleted = eventEmitter.on('bookDeleted', () => {
+      loadBooks();
+    });
+    
+    const unsubscribeUpdated = eventEmitter.on('bookUpdated', () => {
+      loadBooks();
+    });
+
+    return () => {
+      unsubscribeAdded();
+      unsubscribeDeleted();
+      unsubscribeUpdated();
+    };
   }, []);
 
   useEffect(() => {

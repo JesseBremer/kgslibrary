@@ -1,21 +1,62 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, ScrollView, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, ScrollView, FlatList, Image, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 import { databaseService, Book } from '../../services/database';
+import { eventEmitter } from '../../services/eventEmitter';
 
 export default function Index() {
   const [recentBooks, setRecentBooks] = useState<Book[]>([]);
+  const [totalBooks, setTotalBooks] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadRecentBooks();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      loadRecentBooks();
+    }, [])
+  );
+
+  // Listen for book changes
+  useEffect(() => {
+    const unsubscribeAdded = eventEmitter.on('bookAdded', () => {
+      loadRecentBooks();
+    });
+    
+    const unsubscribeDeleted = eventEmitter.on('bookDeleted', () => {
+      loadRecentBooks();
+    });
+    
+    const unsubscribeUpdated = eventEmitter.on('bookUpdated', () => {
+      loadRecentBooks();
+    });
+
+    return () => {
+      unsubscribeAdded();
+      unsubscribeDeleted();
+      unsubscribeUpdated();
+    };
+  }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadRecentBooks();
+    setRefreshing(false);
+  };
+
   const loadRecentBooks = async () => {
     try {
       const books = await databaseService.getRecentBooks(10);
       setRecentBooks(books);
+      
+      // Get total book count
+      const allBooks = await databaseService.getAllBooks();
+      setTotalBooks(allBooks.length);
     } catch (error) {
       console.error('Error loading recent books:', error);
     } finally {
@@ -65,7 +106,16 @@ export default function Index() {
   );
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor="#007AFF"
+        />
+      }
+    >
       <View style={styles.header}>
         <Text style={styles.welcomeText}>Welcome to KGS Library</Text>
         <Text style={styles.subtitle}>Manage your personal book collection</Text>
@@ -96,7 +146,7 @@ export default function Index() {
         <Text style={styles.sectionTitle}>Library Stats</Text>
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{`${recentBooks.length}`}</Text>
+            <Text style={styles.statNumber}>{`${totalBooks}`}</Text>
             <Text style={styles.statLabel}>Total Books</Text>
           </View>
         </View>

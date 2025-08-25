@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { eventEmitter } from './eventEmitter';
 
 export interface Book {
   isbn: string;
@@ -46,6 +47,9 @@ class DatabaseService {
     if (!bookExists) {
       existingBooks.push(book);
       await AsyncStorage.setItem('books_list', JSON.stringify(existingBooks));
+      
+      // Emit book added event
+      eventEmitter.emit('bookAdded', book);
     }
   }
 
@@ -86,6 +90,9 @@ class DatabaseService {
     const existingBooks = await this.getAllBooksFromStorage();
     const updatedBooks = existingBooks.filter(book => book.isbn !== isbn);
     await AsyncStorage.setItem('books_list', JSON.stringify(updatedBooks));
+    
+    // Emit book deleted event
+    eventEmitter.emit('bookDeleted', isbn);
   }
 
   async getRecentBooks(limit: number = 10): Promise<Book[]> {
