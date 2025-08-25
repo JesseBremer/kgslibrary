@@ -12,8 +12,8 @@ import {
 import { CameraView, Camera, useCameraPermissions } from 'expo-camera';
 import { BarCodeScanningResult } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
-import { databaseService, Book } from '../services/database';
-import { googleBooksApi, GoogleBookData } from '../services/googleBooksApi';
+import { databaseService, Book } from '../../services/database';
+import { googleBooksApi, GoogleBookData } from '../../services/googleBooksApi';
 
 export default function AddBooks() {
   const [permission, requestPermission] = useCameraPermissions();

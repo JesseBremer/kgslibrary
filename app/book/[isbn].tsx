@@ -102,11 +102,6 @@ export default function BookDisplay() {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
 
       <View style={styles.bookPreview}>
         <View style={styles.bookImageContainer}>
@@ -242,15 +237,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
-    paddingTop: 50,
-  },
-  headerBackButton: {
-    padding: 8,
   },
   bookPreview: {
     flexDirection: 'row',

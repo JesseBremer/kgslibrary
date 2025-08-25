@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, ScrollView, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { databaseService, Book } from '../services/database';
+import { databaseService, Book } from '../../services/database';
 
 export default function Index() {
   const [recentBooks, setRecentBooks] = useState<Book[]>([]);
